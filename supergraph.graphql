@@ -1,0 +1,661 @@
+schema @link(url: "https://specs.apollo.dev/link/v1.0") @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION) @link(url: "https://the-guild.dev/graphql/mesh/spec/v1.0", import: ["@example", "@httpOperation", "@transport", "@extraSchemaDefinitionDirective", "@entity", "@subgraphId", "@derivedFrom", "@merge"]) {
+  query: Query
+  subscription: Subscription
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+directive @example(subgraph: String, value: ObjMap) repeatable on FIELD_DEFINITION | OBJECT | INPUT_OBJECT | ENUM | SCALAR
+
+directive @httpOperation(subgraph: String, path: String, operationSpecificHeaders: [[String]], httpMethod: HTTPMethod, isBinary: Boolean, requestBaseBody: ObjMap, queryParamArgMap: ObjMap, queryStringOptionsByParam: ObjMap, jsonApiFields: Boolean, queryStringOptions: ObjMap) repeatable on FIELD_DEFINITION
+
+directive @transport(subgraph: String, kind: String, location: String, headers: [[String]], queryStringOptions: ObjMap, queryParams: [[String]]) repeatable on SCHEMA
+
+directive @extraSchemaDefinitionDirective(directives: _DirectiveExtensions) repeatable on OBJECT
+
+directive @entity on OBJECT
+
+directive @subgraphId(id: String!) on OBJECT
+
+directive @derivedFrom(field: String!) on FIELD_DEFINITION
+
+directive @merge(subgraph: String, argsExpr: String, keyArg: String, keyField: String, key: [String!], additionalArgs: String) repeatable on FIELD_DEFINITION
+
+directive @additionalField on FIELD_DEFINITION
+
+scalar join__FieldSet
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+enum join__Graph {
+  CATALYST_PROJECTS @join__graph(name: "CatalystProjects", url: "https://catalyst.molecule.xyz/api/")
+  IP_SEEDS @join__graph(name: "IPSeeds", url: "https://subgraph.satsuma-prod.com/742d8952ab24/molecule--4039244/moleculexyz_ipseed/api")
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON @join__type(graph: CATALYST_PROJECTS) @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL @join__type(graph: CATALYST_PROJECTS)
+
+scalar ObjMap @join__type(graph: CATALYST_PROJECTS)
+
+scalar _DirectiveExtensions @join__type(graph: CATALYST_PROJECTS)
+
+scalar BigDecimal @join__type(graph: IP_SEEDS)
+
+scalar BigInt @join__type(graph: IP_SEEDS)
+
+scalar Bytes @join__type(graph: IP_SEEDS)
+
+"""8 bytes signed integer"""
+scalar Int8 @join__type(graph: IP_SEEDS)
+
+"""A string representation of microseconds UNIX timestamp (16 digits)"""
+scalar Timestamp @join__type(graph: IP_SEEDS)
+
+scalar TransportOptions @join__type(graph: IP_SEEDS)
+
+type Query @extraSchemaDefinitionDirective(directives: {transport: [{subgraph: "CatalystProjects", kind: "rest", location: "https://catalyst.molecule.xyz/api/"}]}) @join__type(graph: CATALYST_PROJECTS) @join__type(graph: IP_SEEDS) {
+  catalystMetadata(id: String): CatalystProject @httpOperation(subgraph: "CatalystProjects", path: "/projects?tokenId={args.id}", httpMethod: GET) @join__field(graph: CATALYST_PROJECTS)
+  ipseed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): IPSeed @join__field(graph: IP_SEEDS)
+  ipseeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: IPSeed_orderBy
+    orderDirection: OrderDirection
+    where: IPSeed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [IPSeed!]! @join__field(graph: IP_SEEDS)
+  holding(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Holding @merge(subgraph: "IPSeeds", keyField: "id", keyArg: "id") @join__field(graph: IP_SEEDS)
+  holdings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Holding_orderBy
+    orderDirection: OrderDirection
+    where: Holding_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Holding!]! @join__field(graph: IP_SEEDS)
+  """Access to subgraph metadata"""
+  _meta(block: Block_height): _Meta_ @join__field(graph: IP_SEEDS)
+}
+
+type CatalystProject @example(subgraph: "CatalystProjects", value: "{\"id\":\"bacfed06-abcd-efgh-ijkl-1752f4d08253\",\"data\":{\"name\":\"Project Name\",\"description\":\"Long Text\",\"project_details\":{},\"catalyst_metadata\":{\"video\":{},\"discord\":{\"invite_url\":\"https://t.co/can-be-telegram\"},\"dataroom\":{\"deeplink\":\"https://example.com/dataroom\"},\"image_url\":\"https://public.catalyst.molecule.xyz/catalyst-project/Percepta/percepta.jpeg\",\"research_area\":\"research_area tag\",\"content_sections\":{\"problem\":\"Long Text problem\",\"solution\":\"Long Text solution\",\"elevator_pitch\":\"Long Text elevator_pitch\",\"research_impact\":\"Long Text research_impact\",\"use_of_proceeds\":\"Long Text use_of_proceeds\",\"commercialization_potential\":\"Long Text commercialization_potential\"}}},\"tokenId\":\"remote_id\",\"active\":true}") @join__type(graph: CATALYST_PROJECTS) {
+  id: String
+  data: query_catalystMetadata_data
+  tokenId: String
+  active: Boolean
+}
+
+type query_catalystMetadata_data @join__type(graph: CATALYST_PROJECTS) {
+  name: String
+  description: String
+  project_details: JSON
+  catalyst_metadata: query_catalystMetadata_data_catalyst_metadata
+}
+
+type query_catalystMetadata_data_catalyst_metadata @join__type(graph: CATALYST_PROJECTS) {
+  video: JSON
+  discord: query_catalystMetadata_data_catalyst_metadata_discord
+  dataroom: query_catalystMetadata_data_catalyst_metadata_dataroom
+  image_url: URL
+  research_area: String
+  content_sections: query_catalystMetadata_data_catalyst_metadata_content_sections
+}
+
+type query_catalystMetadata_data_catalyst_metadata_discord @join__type(graph: CATALYST_PROJECTS) {
+  invite_url: URL
+}
+
+type query_catalystMetadata_data_catalyst_metadata_dataroom @join__type(graph: CATALYST_PROJECTS) {
+  deeplink: URL
+}
+
+type query_catalystMetadata_data_catalyst_metadata_content_sections @join__type(graph: CATALYST_PROJECTS) {
+  problem: String
+  solution: String
+  elevator_pitch: String
+  research_impact: String
+  use_of_proceeds: String
+  commercialization_potential: String
+}
+
+type Holding @join__type(graph: IP_SEEDS, key: "id") {
+  id: ID!
+  holder: Bytes!
+  ipSeed: IPSeed!
+  balance: BigInt!
+  contribution: BigInt!
+}
+
+type IPSeed @join__type(graph: IP_SEEDS) {
+  id: ID!
+  projectId: String!
+  marketState: MarketState!
+  createdAt: Int!
+  creator: Bytes!
+  sourcer: Bytes!
+  beneficiary: Bytes!
+  fundingGoal: BigInt!
+  netFundingGoal: BigInt!
+  premint: BigInt!
+  deadline: Int8!
+  negotiationDeadline: Int8!
+  iptContract: Bytes
+  priceCurve: Bytes!
+  curveParameters: Bytes!
+  supply: BigInt!
+  holderCount: Int!
+  collateral: BigInt!
+  claimableCapital: BigInt!
+  exitFees: BigInt!
+  tradingVolume: BigInt!
+  holders(skip: Int = 0, first: Int = 100, orderBy: Holding_orderBy, orderDirection: OrderDirection, where: Holding_filter): [Holding!]!
+  projectData: CatalystProject @resolveTo(sourceName: "CatalystProjects", sourceTypeName: "Query", sourceFieldName: "catalystMetadata", requiredSelectionSet: "{ id }", sourceArgs: {id: "{root.id}"}) @additionalField
+}
+
+type Subscription @join__type(graph: IP_SEEDS) {
+  ipseed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): IPSeed
+  ipseeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: IPSeed_orderBy
+    orderDirection: OrderDirection
+    where: IPSeed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [IPSeed!]!
+  holding(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Holding @merge(subgraph: "IPSeeds", keyField: "id", keyArg: "id")
+  holdings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Holding_orderBy
+    orderDirection: OrderDirection
+    where: Holding_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Holding!]!
+  """Access to subgraph metadata"""
+  _meta(block: Block_height): _Meta_
+}
+
+type _Block_ @join__type(graph: IP_SEEDS) {
+  """The hash of the block"""
+  hash: Bytes
+  """The block number"""
+  number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
+  """The hash of the parent block"""
+  parentHash: Bytes
+}
+
+"""The type for the top-level _meta field"""
+type _Meta_ @join__type(graph: IP_SEEDS) {
+  """
+  Information about a specific subgraph block. The hash of the block
+  will be null if the _meta field has a block constraint that asks for
+  a block number. It will be filled if the _meta field has no block constraint
+  and therefore asks for the latest  block
+  """
+  block: _Block_!
+  """The deployment ID"""
+  deployment: String!
+  """If `true`, the subgraph encountered indexing errors at some past block"""
+  hasIndexingErrors: Boolean!
+}
+
+enum HTTPMethod @join__type(graph: CATALYST_PROJECTS) {
+  GET @join__enumValue(graph: CATALYST_PROJECTS)
+  HEAD @join__enumValue(graph: CATALYST_PROJECTS)
+  POST @join__enumValue(graph: CATALYST_PROJECTS)
+  PUT @join__enumValue(graph: CATALYST_PROJECTS)
+  DELETE @join__enumValue(graph: CATALYST_PROJECTS)
+  CONNECT @join__enumValue(graph: CATALYST_PROJECTS)
+  OPTIONS @join__enumValue(graph: CATALYST_PROJECTS)
+  TRACE @join__enumValue(graph: CATALYST_PROJECTS)
+  PATCH @join__enumValue(graph: CATALYST_PROJECTS)
+}
+
+enum Aggregation_interval @join__type(graph: IP_SEEDS) {
+  hour @join__enumValue(graph: IP_SEEDS)
+  day @join__enumValue(graph: IP_SEEDS)
+}
+
+enum Holding_orderBy @join__type(graph: IP_SEEDS) {
+  id @join__enumValue(graph: IP_SEEDS)
+  holder @join__enumValue(graph: IP_SEEDS)
+  ipSeed @join__enumValue(graph: IP_SEEDS)
+  ipSeed__id @join__enumValue(graph: IP_SEEDS)
+  ipSeed__projectId @join__enumValue(graph: IP_SEEDS)
+  ipSeed__marketState @join__enumValue(graph: IP_SEEDS)
+  ipSeed__createdAt @join__enumValue(graph: IP_SEEDS)
+  ipSeed__creator @join__enumValue(graph: IP_SEEDS)
+  ipSeed__sourcer @join__enumValue(graph: IP_SEEDS)
+  ipSeed__beneficiary @join__enumValue(graph: IP_SEEDS)
+  ipSeed__fundingGoal @join__enumValue(graph: IP_SEEDS)
+  ipSeed__netFundingGoal @join__enumValue(graph: IP_SEEDS)
+  ipSeed__premint @join__enumValue(graph: IP_SEEDS)
+  ipSeed__deadline @join__enumValue(graph: IP_SEEDS)
+  ipSeed__negotiationDeadline @join__enumValue(graph: IP_SEEDS)
+  ipSeed__iptContract @join__enumValue(graph: IP_SEEDS)
+  ipSeed__priceCurve @join__enumValue(graph: IP_SEEDS)
+  ipSeed__curveParameters @join__enumValue(graph: IP_SEEDS)
+  ipSeed__supply @join__enumValue(graph: IP_SEEDS)
+  ipSeed__holderCount @join__enumValue(graph: IP_SEEDS)
+  ipSeed__collateral @join__enumValue(graph: IP_SEEDS)
+  ipSeed__claimableCapital @join__enumValue(graph: IP_SEEDS)
+  ipSeed__exitFees @join__enumValue(graph: IP_SEEDS)
+  ipSeed__tradingVolume @join__enumValue(graph: IP_SEEDS)
+  balance @join__enumValue(graph: IP_SEEDS)
+  contribution @join__enumValue(graph: IP_SEEDS)
+}
+
+enum MarketState @join__type(graph: IP_SEEDS) {
+  OPEN @join__enumValue(graph: IP_SEEDS)
+  FUNDED @join__enumValue(graph: IP_SEEDS)
+  EXPIRED @join__enumValue(graph: IP_SEEDS)
+  CLAIMED @join__enumValue(graph: IP_SEEDS)
+  SUCCEEDED @join__enumValue(graph: IP_SEEDS)
+}
+
+"""Defines the order direction, either ascending or descending"""
+enum OrderDirection @join__type(graph: IP_SEEDS) {
+  asc @join__enumValue(graph: IP_SEEDS)
+  desc @join__enumValue(graph: IP_SEEDS)
+}
+
+enum IPSeed_orderBy @join__type(graph: IP_SEEDS) {
+  id @join__enumValue(graph: IP_SEEDS)
+  projectId @join__enumValue(graph: IP_SEEDS)
+  marketState @join__enumValue(graph: IP_SEEDS)
+  createdAt @join__enumValue(graph: IP_SEEDS)
+  creator @join__enumValue(graph: IP_SEEDS)
+  sourcer @join__enumValue(graph: IP_SEEDS)
+  beneficiary @join__enumValue(graph: IP_SEEDS)
+  fundingGoal @join__enumValue(graph: IP_SEEDS)
+  netFundingGoal @join__enumValue(graph: IP_SEEDS)
+  premint @join__enumValue(graph: IP_SEEDS)
+  deadline @join__enumValue(graph: IP_SEEDS)
+  negotiationDeadline @join__enumValue(graph: IP_SEEDS)
+  iptContract @join__enumValue(graph: IP_SEEDS)
+  priceCurve @join__enumValue(graph: IP_SEEDS)
+  curveParameters @join__enumValue(graph: IP_SEEDS)
+  supply @join__enumValue(graph: IP_SEEDS)
+  holderCount @join__enumValue(graph: IP_SEEDS)
+  collateral @join__enumValue(graph: IP_SEEDS)
+  claimableCapital @join__enumValue(graph: IP_SEEDS)
+  exitFees @join__enumValue(graph: IP_SEEDS)
+  tradingVolume @join__enumValue(graph: IP_SEEDS)
+  holders @join__enumValue(graph: IP_SEEDS)
+}
+
+enum _SubgraphErrorPolicy_ @join__type(graph: IP_SEEDS) {
+  """Data will be returned even if the subgraph has indexing errors"""
+  allow @join__enumValue(graph: IP_SEEDS)
+  """
+  If the subgraph has indexing errors, data will be omitted. The default.
+  """
+  deny @join__enumValue(graph: IP_SEEDS)
+}
+
+input BlockChangedFilter @join__type(graph: IP_SEEDS) {
+  number_gte: Int!
+}
+
+input Block_height @join__type(graph: IP_SEEDS) {
+  hash: Bytes
+  number: Int
+  number_gte: Int
+}
+
+input Holding_filter @join__type(graph: IP_SEEDS) {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  holder: Bytes
+  holder_not: Bytes
+  holder_gt: Bytes
+  holder_lt: Bytes
+  holder_gte: Bytes
+  holder_lte: Bytes
+  holder_in: [Bytes!]
+  holder_not_in: [Bytes!]
+  holder_contains: Bytes
+  holder_not_contains: Bytes
+  ipSeed: String
+  ipSeed_not: String
+  ipSeed_gt: String
+  ipSeed_lt: String
+  ipSeed_gte: String
+  ipSeed_lte: String
+  ipSeed_in: [String!]
+  ipSeed_not_in: [String!]
+  ipSeed_contains: String
+  ipSeed_contains_nocase: String
+  ipSeed_not_contains: String
+  ipSeed_not_contains_nocase: String
+  ipSeed_starts_with: String
+  ipSeed_starts_with_nocase: String
+  ipSeed_not_starts_with: String
+  ipSeed_not_starts_with_nocase: String
+  ipSeed_ends_with: String
+  ipSeed_ends_with_nocase: String
+  ipSeed_not_ends_with: String
+  ipSeed_not_ends_with_nocase: String
+  ipSeed_: IPSeed_filter
+  balance: BigInt
+  balance_not: BigInt
+  balance_gt: BigInt
+  balance_lt: BigInt
+  balance_gte: BigInt
+  balance_lte: BigInt
+  balance_in: [BigInt!]
+  balance_not_in: [BigInt!]
+  contribution: BigInt
+  contribution_not: BigInt
+  contribution_gt: BigInt
+  contribution_lt: BigInt
+  contribution_gte: BigInt
+  contribution_lte: BigInt
+  contribution_in: [BigInt!]
+  contribution_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Holding_filter]
+  or: [Holding_filter]
+}
+
+input IPSeed_filter @join__type(graph: IP_SEEDS) {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  projectId: String
+  projectId_not: String
+  projectId_gt: String
+  projectId_lt: String
+  projectId_gte: String
+  projectId_lte: String
+  projectId_in: [String!]
+  projectId_not_in: [String!]
+  projectId_contains: String
+  projectId_contains_nocase: String
+  projectId_not_contains: String
+  projectId_not_contains_nocase: String
+  projectId_starts_with: String
+  projectId_starts_with_nocase: String
+  projectId_not_starts_with: String
+  projectId_not_starts_with_nocase: String
+  projectId_ends_with: String
+  projectId_ends_with_nocase: String
+  projectId_not_ends_with: String
+  projectId_not_ends_with_nocase: String
+  marketState: MarketState
+  marketState_not: MarketState
+  marketState_in: [MarketState!]
+  marketState_not_in: [MarketState!]
+  createdAt: Int
+  createdAt_not: Int
+  createdAt_gt: Int
+  createdAt_lt: Int
+  createdAt_gte: Int
+  createdAt_lte: Int
+  createdAt_in: [Int!]
+  createdAt_not_in: [Int!]
+  creator: Bytes
+  creator_not: Bytes
+  creator_gt: Bytes
+  creator_lt: Bytes
+  creator_gte: Bytes
+  creator_lte: Bytes
+  creator_in: [Bytes!]
+  creator_not_in: [Bytes!]
+  creator_contains: Bytes
+  creator_not_contains: Bytes
+  sourcer: Bytes
+  sourcer_not: Bytes
+  sourcer_gt: Bytes
+  sourcer_lt: Bytes
+  sourcer_gte: Bytes
+  sourcer_lte: Bytes
+  sourcer_in: [Bytes!]
+  sourcer_not_in: [Bytes!]
+  sourcer_contains: Bytes
+  sourcer_not_contains: Bytes
+  beneficiary: Bytes
+  beneficiary_not: Bytes
+  beneficiary_gt: Bytes
+  beneficiary_lt: Bytes
+  beneficiary_gte: Bytes
+  beneficiary_lte: Bytes
+  beneficiary_in: [Bytes!]
+  beneficiary_not_in: [Bytes!]
+  beneficiary_contains: Bytes
+  beneficiary_not_contains: Bytes
+  fundingGoal: BigInt
+  fundingGoal_not: BigInt
+  fundingGoal_gt: BigInt
+  fundingGoal_lt: BigInt
+  fundingGoal_gte: BigInt
+  fundingGoal_lte: BigInt
+  fundingGoal_in: [BigInt!]
+  fundingGoal_not_in: [BigInt!]
+  netFundingGoal: BigInt
+  netFundingGoal_not: BigInt
+  netFundingGoal_gt: BigInt
+  netFundingGoal_lt: BigInt
+  netFundingGoal_gte: BigInt
+  netFundingGoal_lte: BigInt
+  netFundingGoal_in: [BigInt!]
+  netFundingGoal_not_in: [BigInt!]
+  premint: BigInt
+  premint_not: BigInt
+  premint_gt: BigInt
+  premint_lt: BigInt
+  premint_gte: BigInt
+  premint_lte: BigInt
+  premint_in: [BigInt!]
+  premint_not_in: [BigInt!]
+  deadline: Int8
+  deadline_not: Int8
+  deadline_gt: Int8
+  deadline_lt: Int8
+  deadline_gte: Int8
+  deadline_lte: Int8
+  deadline_in: [Int8!]
+  deadline_not_in: [Int8!]
+  negotiationDeadline: Int8
+  negotiationDeadline_not: Int8
+  negotiationDeadline_gt: Int8
+  negotiationDeadline_lt: Int8
+  negotiationDeadline_gte: Int8
+  negotiationDeadline_lte: Int8
+  negotiationDeadline_in: [Int8!]
+  negotiationDeadline_not_in: [Int8!]
+  iptContract: Bytes
+  iptContract_not: Bytes
+  iptContract_gt: Bytes
+  iptContract_lt: Bytes
+  iptContract_gte: Bytes
+  iptContract_lte: Bytes
+  iptContract_in: [Bytes!]
+  iptContract_not_in: [Bytes!]
+  iptContract_contains: Bytes
+  iptContract_not_contains: Bytes
+  priceCurve: Bytes
+  priceCurve_not: Bytes
+  priceCurve_gt: Bytes
+  priceCurve_lt: Bytes
+  priceCurve_gte: Bytes
+  priceCurve_lte: Bytes
+  priceCurve_in: [Bytes!]
+  priceCurve_not_in: [Bytes!]
+  priceCurve_contains: Bytes
+  priceCurve_not_contains: Bytes
+  curveParameters: Bytes
+  curveParameters_not: Bytes
+  curveParameters_gt: Bytes
+  curveParameters_lt: Bytes
+  curveParameters_gte: Bytes
+  curveParameters_lte: Bytes
+  curveParameters_in: [Bytes!]
+  curveParameters_not_in: [Bytes!]
+  curveParameters_contains: Bytes
+  curveParameters_not_contains: Bytes
+  supply: BigInt
+  supply_not: BigInt
+  supply_gt: BigInt
+  supply_lt: BigInt
+  supply_gte: BigInt
+  supply_lte: BigInt
+  supply_in: [BigInt!]
+  supply_not_in: [BigInt!]
+  holderCount: Int
+  holderCount_not: Int
+  holderCount_gt: Int
+  holderCount_lt: Int
+  holderCount_gte: Int
+  holderCount_lte: Int
+  holderCount_in: [Int!]
+  holderCount_not_in: [Int!]
+  collateral: BigInt
+  collateral_not: BigInt
+  collateral_gt: BigInt
+  collateral_lt: BigInt
+  collateral_gte: BigInt
+  collateral_lte: BigInt
+  collateral_in: [BigInt!]
+  collateral_not_in: [BigInt!]
+  claimableCapital: BigInt
+  claimableCapital_not: BigInt
+  claimableCapital_gt: BigInt
+  claimableCapital_lt: BigInt
+  claimableCapital_gte: BigInt
+  claimableCapital_lte: BigInt
+  claimableCapital_in: [BigInt!]
+  claimableCapital_not_in: [BigInt!]
+  exitFees: BigInt
+  exitFees_not: BigInt
+  exitFees_gt: BigInt
+  exitFees_lt: BigInt
+  exitFees_gte: BigInt
+  exitFees_lte: BigInt
+  exitFees_in: [BigInt!]
+  exitFees_not_in: [BigInt!]
+  tradingVolume: BigInt
+  tradingVolume_not: BigInt
+  tradingVolume_gt: BigInt
+  tradingVolume_lt: BigInt
+  tradingVolume_gte: BigInt
+  tradingVolume_lte: BigInt
+  tradingVolume_in: [BigInt!]
+  tradingVolume_not_in: [BigInt!]
+  holders_: Holding_filter
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [IPSeed_filter]
+  or: [IPSeed_filter]
+}

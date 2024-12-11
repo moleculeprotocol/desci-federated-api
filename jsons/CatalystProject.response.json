@@ -1,0 +1,29 @@
+{
+  "id": "bacfed06-abcd-efgh-ijkl-1752f4d08253",
+  "data": {
+    "name": "Project Name",
+    "description": "Long Text",
+    "project_details": {},
+    "catalyst_metadata": {
+      "video": {},
+      "discord": {
+        "invite_url": "https://t.co/can-be-telegram"
+      },
+      "dataroom": {
+        "deeplink": "https://example.com/dataroom"
+      },
+      "image_url": "https://public.catalyst.molecule.xyz/catalyst-project/Percepta/percepta.jpeg",
+      "research_area": "research_area tag",
+      "content_sections": {
+        "problem": "Long Text problem",
+        "solution": "Long Text solution",
+        "elevator_pitch": "Long Text elevator_pitch",
+        "research_impact": "Long Text research_impact",
+        "use_of_proceeds": "Long Text use_of_proceeds",
+        "commercialization_potential": "Long Text commercialization_potential"
+      }
+    }
+  },
+  "tokenId": "remote_id",
+  "active": true
+}
